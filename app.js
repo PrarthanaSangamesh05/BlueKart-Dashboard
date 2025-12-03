@@ -1,7 +1,6 @@
 const $ = sel => document.querySelector(sel);
 const $all = sel => Array.from(document.querySelectorAll(sel));
 
-// rupee formatter
 const fmt = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 });
 
 let state = {
@@ -16,11 +15,9 @@ function save(){
   localStorage.setItem('bk_customers', JSON.stringify(state.customers));
 }
 
-// keep chart refs
 let salesChart = null;
 let ordersChart = null;
 
-// UI: navigation
 $all('.sidebar nav button').forEach(btn =>
   btn.addEventListener('click', ()=>{
     $all('.sidebar nav button').forEach(b=>b.classList.remove('active'));
@@ -34,7 +31,6 @@ function showSection(id){
   const sec = $('#'+id);
   if(sec) sec.classList.add('active');
 
-  // show search only for products page
   const topSearch = $('#topSearchWrap');
   if(id === 'products') topSearch.style.display = '';
   else topSearch.style.display = 'none';
@@ -42,7 +38,6 @@ function showSection(id){
   render();
 }
 
-// Renderers
 function renderCards(){
   const totalSales = state.orders.reduce((s,o)=>s+Number(o.total||0),0);
   $('#totalSales').textContent = fmt.format(totalSales);
@@ -111,12 +106,10 @@ function renderCustomersTable(){
   });
 }
 
-// Charts — safe draw: only draw when Overview is active & canvas exists
 function drawChartsIfNeeded(){
   const overviewActive = $('#overview').classList.contains('active');
   if(!overviewActive) return;
 
-  // monthly sales
   try {
     const salesCanvas = document.getElementById('salesChart');
     if(salesCanvas){
@@ -133,7 +126,6 @@ function drawChartsIfNeeded(){
     console.error('Error drawing salesChart', err);
   }
 
-  // orders chart
   try {
     const ordersCanvas = document.getElementById('ordersChart');
     if(ordersCanvas){
@@ -150,7 +142,6 @@ function drawChartsIfNeeded(){
   }
 }
 
-// PRODUCT modal logic
 const productModal = $('#productModal');
 const productForm = $('#productForm');
 let editingProductId = null;
@@ -189,11 +180,10 @@ productForm.addEventListener('submit', e=>{
   save(); closeProductModal(); render();
 });
 
-// ORDER modal logic
 const orderModal = $('#orderModal');
 const orderForm = $('#orderForm');
 let editingOrderId = null;
-$('#addOrderBtn').addEventListener('click', ()=> openOrderModal()); // create new order
+$('#addOrderBtn').addEventListener('click', ()=> openOrderModal());
 
 $('#cancelOrder').addEventListener('click', ()=> closeOrderModal());
 
@@ -249,7 +239,6 @@ orderForm.addEventListener('submit', e=>{
   save(); closeOrderModal(); render();
 });
 
-// CUSTOMER modal logic
 const customerModal = $('#customerModal');
 const customerForm = $('#customerForm');
 let editingCustomerId = null;
@@ -279,25 +268,22 @@ customerForm.addEventListener('submit', e=>{
   save(); closeCustomerModal(); render();
 });
 
-// Utility: convert dd-mm-yyyy to yyyy-mm-dd if needed
 function convertDateToISO(s){
   if(!s) return '';
   const parts = s.split('-');
-  if(parts.length===3 && parts[0].length===4) return s; // yyyy-mm-dd
-  if(parts.length===3) { // dd-mm-yyyy
+  if(parts.length===3 && parts[0].length===4) return s;
+  if(parts.length===3) {
     return `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
   }
   return s;
 }
 
-// Table actions (delegate)
 document.addEventListener('click', e=>{
   const btn = e.target.closest('button[data-action]');
   if(!btn) return;
   const id = Number(btn.dataset.id);
   const action = btn.dataset.action;
 
-  // Products
   if(action === 'edit-prod') openProductModal(id);
   if(action === 'del-prod'){
     if(confirm('Delete product?')){
@@ -306,7 +292,6 @@ document.addEventListener('click', e=>{
     }
   }
 
-  // Orders
   if(action === 'edit-order') openOrderModal(id);
   if(action === 'del-order'){
     if(confirm('Delete order?')){
@@ -318,11 +303,9 @@ document.addEventListener('click', e=>{
     }
   }
 
-  // Customers
   if(action === 'edit-cust') openCustomerModal(id);
 });
 
-// Search (products only) - dynamic filter
 $('#searchInput').addEventListener('input', e=>{
   const q = e.target.value.toLowerCase();
   document.querySelectorAll('#productsTable tbody tr').forEach(tr=>{
@@ -330,7 +313,6 @@ $('#searchInput').addEventListener('input', e=>{
   });
 });
 
-// Initial render & helpers
 function render(){
   renderCards();
   renderRecentOrders();
