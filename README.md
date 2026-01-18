@@ -34,4 +34,4 @@ _No backend or server required._
 
 ---
 
-## 📂 Project Structure
+
